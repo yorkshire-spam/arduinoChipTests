@@ -1,9 +1,32 @@
+// Quick and dirty sketch for testing 74.83 adder ICs.
+// Connect the IC/ZIF socket to the Arduino Mega as follows:
+//
+// Arduino Pin  IC Pin  Description
+//  -           5       +5/VCC
+//  -           12      GND
+//  53          13      Carry Input
+//  PORT A
+//  22          10      A1
+//  23          8       A2
+//  24          3       A3
+//  25          1       A4
+//  PORT C
+//  37          11      B1
+//  36          7       B2
+//  35          4       B3
+//  34          16      B4
+//  PORT F
+//  A0          9       Sum1
+//  A1          6       Sum2
+//  A2          2       Sum3
+//  A3          15      Sum4
+//  A4          14      Carry Output
 
 int pinC0  =53; // C0/carry input
 
 // Data byte on Arduino Analogue 0-7 = PORT F = INPUT (5 bits, 0-3 + Carry)
-// Address byte A0-A7 (2600) pins 22-29 = PORT A = OUTPUT (nibble A)
-// Address "high" byte (A8, A9, A10) pins 37-30 = PORTC = OUTPUT (nibble B)
+// Pins 22-29 = PORT A = OUTPUT (nibble A)
+// Pins 37-30 = PORTC = OUTPUT (nibble B)
 
 void byte2serial(byte toWrite) {
   if (toWrite<0x10) {
@@ -18,9 +41,7 @@ void setup() {
 
   // Set clock mode pin and Output Enable pins
   pinMode(pinC0, OUTPUT);
-//  digitalWrite(pinOE0, HIGH);
-  
-  //DDRD = B11111110;  // sets Arduino pins 1 to 7 as outputs, pin 0 as input
+
   //Set ports as I or O
   //      76543210
   DDRF = B00000000;
@@ -39,7 +60,7 @@ void setup() {
     for (b=0;b<16;b++){
       PORTC = b;
       delay(5);
-      output = PINF & B00011111;
+      output = PINF & B00011111; // Mask only the bits that are used.
       if (output != (a+b) ) {
         Serial.print("E: ");
         byte2serial(a);
